@@ -4,6 +4,9 @@ import * as Font from "expo-font";
 import MainNavigation from "./navigation/MainNavigation";
 import { AppLoading } from "expo";
 import Fire from "./Fire";
+import { Provider } from "react-redux";
+import store from "./store/store";
+import { NavigationContainer } from "@react-navigation/native";
 
 class App extends React.Component {
   state = {
@@ -26,7 +29,13 @@ class App extends React.Component {
         />
       );
     }
-    return <MainNavigation />;
+    return (
+      <Provider store={store}>
+        <NavigationContainer>
+          <MainNavigation />
+        </NavigationContainer>
+      </Provider>
+    );
   }
 }
 

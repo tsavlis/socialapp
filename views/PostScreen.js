@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Permissions from "expo-permissions";
 import Fire from "../Fire";
 import * as ImagePicker from "expo-image-picker";
+import UserPermissions from "../utils/UserPermissions";
 const firebase = require("firebase");
 require("firebase/firestore");
 export default class PostScreen extends Component {
@@ -20,14 +21,8 @@ export default class PostScreen extends Component {
     image: null
   };
   componentDidMount() {
-    this.getPhotoPermission();
+    UserPermissions.getCameraPermission();
   }
-  getPhotoPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status != "granted") {
-      alert("we need permissions");
-    }
-  };
 
   pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

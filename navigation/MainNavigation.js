@@ -1,7 +1,5 @@
-import "react-native-gesture-handler";
-import React from "react";
+import React, { useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
 //import LoginScreen from "../views/Login";
 import ProfileScreen from "../views/ProfileScreen";
 import HomeScreen from "../views/HomeScreen";
@@ -13,10 +11,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MessageScreen from "../views/MessageScreen";
 import NotificationScreen from "../views/NotificationScreen";
 import PostScreen from "../views/PostScreen";
+import { useDispatch, useSelector } from "react-redux";
+
+import { connect } from "react-redux";
 
 const Stack = createStackNavigator();
-const ModalStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const AuthStack = createStackNavigator();
 
 const TabStack = () => {
   return (
@@ -54,58 +55,61 @@ const TabStack = () => {
     >
       <Tab.Screen name="main" component={HomeScreen} />
       <Tab.Screen name="Messages" component={MessageScreen} />
-      <Tab.Screen name="Posts" component={ModalScreen} />
+      <Tab.Screen name="Posts" component={PostScreen} />
       <Tab.Screen name="Notifications" component={NotificationScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
-function MainNavigation() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="loading"
-          component={LoadingScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Auth"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="home"
-          component={TabStack}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Posts2"
-          mode="modal"
-          component={PostScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
 
-const ModalScreen = () => {
+const AuthStackNavigator = () => {
   return (
-    <ModalStack.Navigator mode="modal">
-      <ModalStack.Screen
-        name="modal"
-        mode="modal"
-        component={PostScreen}
+    <AuthStack.Navigator>
+      <AuthStack.Screen
+        name="Login"
+        component={LoginScreen}
         options={{ headerShown: false }}
       />
-    </ModalStack.Navigator>
+      <AuthStack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ headerShown: false }}
+      />
+    </AuthStack.Navigator>
+  );
+};
+const MainNavigation = props => {
+  const authToken = useSelector(state => state.auth.auth);
+
+  useEffect(() => {
+    console.log(authToken);
+  }, [authToken]);
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="loading"
+        component={LoadingScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Auth"
+        component={AuthStackNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="home"
+        component={TabStack}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 };
 
-export default MainNavigation;
+const mapStateToProps = state => {
+  return {
+    userdata: state.auth.auth
+  };
+};
+
+export default connect(mapStateToProps, null)(MainNavigation);

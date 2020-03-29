@@ -1,31 +1,40 @@
 import React, { Component } from "react";
-import { Text, View, StyleSheet, FlatList, Image } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  FlatList,
+  Image,
+  ActivityIndicator
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import moment from "moment";
-posts = [
-  {
-    id: "1",
-    name: "jon do",
-    text: "lorem10ww",
-    timestamp: 1569492429,
-    avatar: require("../assets/images/profile.jpg"),
-    image: require("../assets/images/profile.jpg")
-  },
-  {
-    id: "2",
-    name: "jon do",
-    text: "lorem10ww",
-    timestamp: 1569492429,
-    avatar: require("../assets/images/profile.jpg"),
-    image: require("../assets/images/profile.jpg")
-  }
-];
+import Fire from "../Fire";
+posts = [];
+
 export default class HomeScreen extends Component {
+  state = {
+    loading: true
+  };
+
+  componentDidMount = async () => {
+    await Fire.shared
+      .getPosts()
+      .then(ref => {
+        ref.docs.map(item => {
+          console.log(item.data());
+          posts.push(item.data());
+        });
+      })
+      .catch(err => alert(err));
+
+    this.setState({ loading: false });
+  };
+
   renderPost = post => {
-    console.log(post);
     return (
       <View style={styles.feedItem}>
-        <Image source={post.avatar} style={styles.avatar} />
+        <Image source={{ uri: post.image }} style={styles.avatar} />
         <View style={{ flex: 1 }}>
           <View
             style={{
@@ -46,7 +55,7 @@ export default class HomeScreen extends Component {
 
           <Text style={styles.post}>{post.text}</Text>
           <Image
-            source={post.image}
+            source={{ uri: post.image }}
             style={styles.postImage}
             resizeMode="cover"
           />
@@ -65,6 +74,15 @@ export default class HomeScreen extends Component {
     );
   };
   render() {
+    if (this.state.loading) {
+      return (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator color="hotpink" size="large" />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -88,7 +106,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EFECF4"
   },
   header: {
-    paddingTop: 64,
+    paddingTop: 48,
     paddingBottom: 16,
     backgroundColor: "#FFF",
     alignItems: "center",

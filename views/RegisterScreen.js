@@ -11,24 +11,43 @@ import {
 import { Colors } from "../constants";
 import firebase from "firebase";
 import { Ionicons } from "@expo/vector-icons";
+import UserPermissions from "../utils/UserPermissions";
+import * as ImagePicker from "expo-image-picker";
+import Fire from "../Fire";
+
 export default class RegisterScreen extends Component {
   state = {
     email: "",
     password: "",
     name: "",
+    avatar: null,
     errorMessage: null
   };
-  SignUp = () => {
-    const { email, password } = this.state;
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredentials => {
-        return userCredentials.user.updateProfile({
-          displayName: this.state.name
-        });
-      })
-      .catch(error => this.setState({ errorMessage: error.message }));
+
+  SignUp = async () => {
+    const user = {
+      email: this.state.email,
+      password: this.state.password,
+      name: this.state.name,
+      avatar: this.state.avatar
+    };
+    await Fire.shared.createUser(user);
+    //this.props.navigation.navigate("home");
+  };
+
+  handlePickAvatar = async () => {
+    UserPermissions.getCameraPermission();
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3]
+    });
+    console.log(result);
+
+    if (!result.cancelled) {
+      this.setState({ avatar: result.uri });
+    }
   };
   render() {
     return (
@@ -62,7 +81,11 @@ export default class RegisterScreen extends Component {
           }}
         >
           <Text style={styles.greeting}> Sign Up </Text>
-          <TouchableOpacity style={styles.avatar}>
+          <TouchableOpacity
+            style={styles.avatarPlaceholder}
+            onPress={this.handlePickAvatar}
+          >
+            <Image source={{ uri: this.state.avatar }} style={styles.avatar} />
             <Ionicons
               name="ios-add"
               size={40}
@@ -202,13 +225,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(21, 22 , 41, 0.3)"
   },
+  avatarPlaceholder: {
+    width: 100,
+    height: 100,
+    backgroundColor: "#E1E2E6",
+    borderRadius: 50,
+    marginTop: 48,
+    justifyContent: "center",
+    alignItems: "center"
+  },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#E1E2E6",
-    marginTop: 48,
-    justifyContent: "center",
-    alignItems: "center"
+    position: "absolute"
   }
 });

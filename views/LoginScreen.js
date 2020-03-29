@@ -11,22 +11,30 @@ import {
 } from "react-native";
 import { Colors } from "../constants";
 import firebase from "firebase";
+import * as actions from "../store/actions";
+import { connect } from "react-redux";
 
-export default class LoginScreen extends Component {
+class LoginScreen extends Component {
   state = {
     email: "",
     password: "",
     errorMessage: null
   };
   handleLogin = () => {
+    this.props.authStart();
     const { email, password } = this.state;
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        this.props.navigation.navigate("home");
+      .then(user => {
+        this.props.authSuccess(user.user);
+        this.setState({ email: "", password: "", errorMessage: null });
+        //  this.props.navigation.navigate("home");
       })
-      .catch(error => this.setState({ errorMessage: error.message }));
+      .catch(error => {
+        this.props.authFail(error.message);
+        this.setState({ errorMessage: error.message });
+      });
   };
   render() {
     LayoutAnimation.easeInEaseOut();
@@ -107,6 +115,19 @@ export default class LoginScreen extends Component {
     );
   }
 }
+const mapStateToProps = state => {
+  return {
+    //auth: state.auth.auth
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    authStart: () => dispatch(actions.authLoginStart()),
+    authFail: error => dispatch(actions.authLoginFail(error)),
+    authSuccess: user => dispatch(actions.authLoginSuccess(user))
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
   container: {
