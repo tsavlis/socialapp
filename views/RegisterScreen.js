@@ -32,6 +32,9 @@ export default class RegisterScreen extends Component {
       avatar: this.state.avatar
     };
     await Fire.shared.createUser(user);
+    this.setState({
+      user: {}
+    });
     //this.props.navigation.navigate("home");
   };
 

@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 class LoadingScreen extends Component {
   componentDidMount() {
     firebase.auth().onAuthStateChanged(user => {
+      this.props.authSuccess(user);
       this.props.navigation.navigate(user ? "home" : "Auth");
     });
   }

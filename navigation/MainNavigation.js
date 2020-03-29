@@ -85,6 +85,22 @@ const MainNavigation = props => {
     console.log(authToken);
   }, [authToken]);
 
+  if (authToken) {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="home"
+          component={TabStack}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Auth"
+          component={AuthStackNavigator}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    );
+  }
   return (
     <Stack.Navigator>
       <Stack.Screen
